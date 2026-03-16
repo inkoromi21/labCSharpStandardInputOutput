@@ -20,12 +20,16 @@ namespace TextFileEditor
     private FileWithSerialization _currentFile;
     private List<TextEditorMemento> _history;
     private int _currentStateIndex;
+    private int _incrementValue;
+    private int _initialStateIndex;
 
     public TextEditor()
     {
       _currentFile = new FileWithSerialization();
       _history = new List<TextEditorMemento>();
       _currentStateIndex = -1;
+      _incrementValue = 1;
+      _initialStateIndex = -1;
     }
 
     public void OpenFile(string filePath)
@@ -64,14 +68,15 @@ namespace TextFileEditor
     public void Undo()
     {
       bool canUndo;
+      int previousStateIndex;
+      string previousContent;
 
       canUndo = _currentStateIndex > 0;
 
       if (canUndo)
       {
-        string previousContent;
-
-        _currentStateIndex = _currentStateIndex - 1;
+        previousStateIndex = _currentStateIndex - _incrementValue;
+        _currentStateIndex = previousStateIndex;
         previousContent = _history[_currentStateIndex].Content;
         _currentFile.Content = previousContent;
       }
@@ -81,15 +86,16 @@ namespace TextFileEditor
     {
       int lastIndex;
       bool canRedo;
+      int nextStateIndex;
+      string nextContent;
 
-      lastIndex = _history.Count - 1;
+      lastIndex = _history.Count - _incrementValue;
       canRedo = _currentStateIndex < lastIndex;
 
       if (canRedo)
       {
-        string nextContent;
-
-        _currentStateIndex = _currentStateIndex + 1;
+        nextStateIndex = _currentStateIndex + _incrementValue;
+        _currentStateIndex = nextStateIndex;
         nextContent = _history[_currentStateIndex].Content;
         _currentFile.Content = nextContent;
       }
@@ -99,61 +105,68 @@ namespace TextFileEditor
     {
       int lastIndex;
       bool notAtEnd;
+      int startIndex;
+      int countToRemove;
+      TextEditorMemento newState;
+      int historyCount;
 
-      lastIndex = _history.Count - 1;
+      lastIndex = _history.Count - _incrementValue;
       notAtEnd = _currentStateIndex < lastIndex;
 
       if (notAtEnd)
       {
-        int startIndex;
-        int countToRemove;
-
-        startIndex = _currentStateIndex + 1;
+        startIndex = _currentStateIndex + _incrementValue;
         countToRemove = _history.Count - startIndex;
         _history.RemoveRange(startIndex, countToRemove);
       }
-
-      TextEditorMemento newState;
-      int historyCount;
 
       newState = new TextEditorMemento(_currentFile.Content);
       _history.Add(newState);
 
       historyCount = _history.Count;
-      _currentStateIndex = historyCount - 1;
+      _currentStateIndex = historyCount - _incrementValue;
     }
 
     public List<string> GetHistoryInfo()
     {
       List<string> historyInfo;
       int historyCount;
+      int index;
+      string marker;
+      TextEditorMemento state;
+      DateTime stateTime;
+      int contentLength;
+      string info;
+      string currentMarkerPrefix;
+      string otherMarkerPrefix;
+      string charactersText;
 
       historyInfo = new List<string>();
       historyCount = _history.Count;
+      index = 0;
+      currentMarkerPrefix = "-> ";
+      otherMarkerPrefix = "   ";
+      charactersText = " characters";
 
-      for (int i = 0; i < historyCount; i++)
+      while (index < historyCount)
       {
-        string marker;
-        TextEditorMemento state;
-        DateTime stateTime;
-        int contentLength;
-        string info;
-
-        if (i == _currentStateIndex)
+        if (index == _currentStateIndex)
         {
-          marker = "-> ";
+          marker = currentMarkerPrefix;
         }
         else
         {
-          marker = "   ";
+          marker = otherMarkerPrefix;
         }
 
-        state = _history[i];
+        state = _history[index];
         stateTime = state.Timestamp;
         contentLength = state.Content.Length;
 
-        info = marker + (i + 1) + ". " + stateTime + ": " + contentLength + " characters";
+        info = marker + (index + _incrementValue) + ". " + stateTime + ": " + contentLength + charactersText;
         historyInfo.Add(info);
+
+        index = index + _incrementValue;
       }
 
       return historyInfo;

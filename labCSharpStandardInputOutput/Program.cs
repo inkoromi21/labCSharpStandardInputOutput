@@ -10,16 +10,16 @@ namespace TextFileEditor
     {
       bool isRunning;
 
+      string userChoice;
+      string menuChoiceEditor;
+      string menuChoiceSearch;
+      string menuChoiceIndex;
+      string menuChoiceExit;
+
       isRunning = true;
 
       while (isRunning)
       {
-        string userChoice;
-        string choiceOne;
-        string choiceTwo;
-        string choiceThree;
-        string choiceFour;
-
         Console.Clear();
         Console.WriteLine("=== TEXT EDITOR ===");
         Console.WriteLine("1. Text editor");
@@ -29,24 +29,24 @@ namespace TextFileEditor
         Console.Write("Choose action: ");
 
         userChoice = Console.ReadLine();
-        choiceOne = "1";
-        choiceTwo = "2";
-        choiceThree = "3";
-        choiceFour = "4";
+        menuChoiceEditor = "1";
+        menuChoiceSearch = "2";
+        menuChoiceIndex = "3";
+        menuChoiceExit = "4";
 
-        if (userChoice == choiceOne)
+        if (userChoice == menuChoiceEditor)
         {
           RunTextEditor();
         }
-        else if (userChoice == choiceTwo)
+        else if (userChoice == menuChoiceSearch)
         {
           RunFileSearch();
         }
-        else if (userChoice == choiceThree)
+        else if (userChoice == menuChoiceIndex)
         {
           RunFileIndexer();
         }
-        else if (userChoice == choiceFour)
+        else if (userChoice == menuChoiceExit)
         {
           isRunning = false;
         }
@@ -62,8 +62,8 @@ namespace TextFileEditor
     {
       TextEditor editor;
       string userChoice;
-      string choiceOne;
-      string choiceTwo;
+      string editorChoiceOpen;
+      string editorChoiceNew;
 
       editor = new TextEditor();
 
@@ -74,10 +74,10 @@ namespace TextFileEditor
       Console.Write("Choose: ");
 
       userChoice = Console.ReadLine();
-      choiceOne = "1";
-      choiceTwo = "2";
+      editorChoiceOpen = "1";
+      editorChoiceNew = "2";
 
-      if (userChoice == choiceOne)
+      if (userChoice == editorChoiceOpen)
       {
         string filePath;
         bool fileExists;
@@ -98,7 +98,7 @@ namespace TextFileEditor
           return;
         }
       }
-      else if (userChoice == choiceTwo)
+      else if (userChoice == editorChoiceNew)
       {
         string filePath;
 
@@ -112,22 +112,22 @@ namespace TextFileEditor
       }
 
       bool isEditing;
+      string currentContent;
+      string command;
+      string editChoiceEdit;
+      string editChoiceUndo;
+      string editChoiceRedo;
+      string editChoiceSave;
+      string editChoiceHistory;
+      string editChoiceBinary;
+      string editChoiceXml;
+      string editChoiceExit;
+      string newText;
 
       isEditing = true;
 
       while (isEditing)
       {
-        string currentContent;
-        string command;
-        string cmdOne;
-        string cmdTwo;
-        string cmdThree;
-        string cmdFour;
-        string cmdFive;
-        string cmdSix;
-        string cmdSeven;
-        string cmdEight;
-
         Console.Clear();
         Console.WriteLine("=== EDITING ===");
         Console.WriteLine("Current text:");
@@ -148,38 +148,36 @@ namespace TextFileEditor
         Console.Write("Choose action: ");
 
         command = Console.ReadLine();
-        cmdOne = "1";
-        cmdTwo = "2";
-        cmdThree = "3";
-        cmdFour = "4";
-        cmdFive = "5";
-        cmdSix = "6";
-        cmdSeven = "7";
-        cmdEight = "8";
+        editChoiceEdit = "1";
+        editChoiceUndo = "2";
+        editChoiceRedo = "3";
+        editChoiceSave = "4";
+        editChoiceHistory = "5";
+        editChoiceBinary = "6";
+        editChoiceXml = "7";
+        editChoiceExit = "8";
 
-        if (command == cmdOne)
+        if (command == editChoiceEdit)
         {
-          string newText;
-
           Console.Write("Enter new text: ");
           newText = Console.ReadLine();
           editor.SetContent(newText);
         }
-        else if (command == cmdTwo)
+        else if (command == editChoiceUndo)
         {
           editor.Undo();
         }
-        else if (command == cmdThree)
+        else if (command == editChoiceRedo)
         {
           editor.Redo();
         }
-        else if (command == cmdFour)
+        else if (command == editChoiceSave)
         {
           editor.SaveFile();
           Console.WriteLine("File saved!");
           Console.ReadKey();
         }
-        else if (command == cmdFive)
+        else if (command == editChoiceHistory)
         {
           List<string> historyInfo;
 
@@ -193,7 +191,7 @@ namespace TextFileEditor
 
           Console.ReadKey();
         }
-        else if (command == cmdSix)
+        else if (command == editChoiceBinary)
         {
           string binaryPath;
           FileWithSerialization file;
@@ -212,7 +210,7 @@ namespace TextFileEditor
           Console.WriteLine("Serialization completed!");
           Console.ReadKey();
         }
-        else if (command == cmdSeven)
+        else if (command == editChoiceXml)
         {
           string xmlPath;
           FileWithSerialization fileXml;
@@ -231,7 +229,7 @@ namespace TextFileEditor
           Console.WriteLine("Serialization completed!");
           Console.ReadKey();
         }
-        else if (command == cmdEight)
+        else if (command == editChoiceExit)
         {
           isEditing = false;
         }
@@ -260,10 +258,10 @@ namespace TextFileEditor
 
       keywords = new List<string>();
 
+      string trimmedKeyword;
+
       foreach (string keyword in keywordsArray)
       {
-        string trimmedKeyword;
-
         trimmedKeyword = keyword.Trim();
         keywords.Add(trimmedKeyword);
       }
@@ -313,9 +311,10 @@ namespace TextFileEditor
 
       keywords = new List<string>();
 
+      string trimmedKeyword;
+
       foreach (string keyword in keywordsArray)
       {
-        string trimmedKeyword;
 
         trimmedKeyword = keyword.Trim();
         keywords.Add(trimmedKeyword);

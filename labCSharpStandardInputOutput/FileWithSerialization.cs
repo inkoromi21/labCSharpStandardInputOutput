@@ -38,9 +38,11 @@ namespace TextFileEditor
     {
       BinaryFormatter formatter;
       FileStream fileStream;
+      FileMode fileMode;
 
       formatter = new BinaryFormatter();
-      fileStream = new FileStream(savePath, FileMode.Create);
+      fileMode = FileMode.Create;
+      fileStream = new FileStream(savePath, fileMode);
 
       using (fileStream)
       {
@@ -53,9 +55,11 @@ namespace TextFileEditor
       BinaryFormatter formatter;
       FileStream fileStream;
       FileWithSerialization loadedObject;
+      FileMode fileMode;
 
       formatter = new BinaryFormatter();
-      fileStream = new FileStream(filePath, FileMode.Open);
+      fileMode = FileMode.Open;
+      fileStream = new FileStream(filePath, fileMode);
 
       using (fileStream)
       {
@@ -69,9 +73,13 @@ namespace TextFileEditor
     {
       XmlSerializer serializer;
       FileStream fileStream;
+      FileMode fileMode;
+      Type serializationType;
 
-      serializer = new XmlSerializer(typeof(FileWithSerialization));
-      fileStream = new FileStream(savePath, FileMode.Create);
+      serializationType = typeof(FileWithSerialization);
+      serializer = new XmlSerializer(serializationType);
+      fileMode = FileMode.Create;
+      fileStream = new FileStream(savePath, fileMode);
 
       using (fileStream)
       {
@@ -84,9 +92,13 @@ namespace TextFileEditor
       XmlSerializer serializer;
       FileStream fileStream;
       FileWithSerialization loadedObject;
+      FileMode fileMode;
+      Type serializationType;
 
-      serializer = new XmlSerializer(typeof(FileWithSerialization));
-      fileStream = new FileStream(filePath, FileMode.Open);
+      serializationType = typeof(FileWithSerialization);
+      serializer = new XmlSerializer(serializationType);
+      fileMode = FileMode.Open;
+      fileStream = new FileStream(filePath, fileMode);
 
       using (fileStream)
       {

@@ -7,15 +7,21 @@ namespace TextFileEditor
   public class FileSearcher
   {
     private List<string> _keywords;
+    private int _incrementValue;
+    private string _textFilePattern;
 
     public FileSearcher()
     {
       _keywords = new List<string>();
+      _incrementValue = 1;
+      _textFilePattern = "*.txt";
     }
 
     public FileSearcher(List<string> keywords)
     {
       _keywords = keywords;
+      _incrementValue = 1;
+      _textFilePattern = "*.txt";
     }
 
     public void SetKeywords(List<string> keywords)
@@ -29,9 +35,13 @@ namespace TextFileEditor
       bool directoryExists;
       SearchOption searchOption;
       string[] allFiles;
+      int index;
+      string currentFile;
+      bool fileHasKeywords;
 
       foundFiles = new List<string>();
       directoryExists = Directory.Exists(directoryPath);
+      index = 0;
 
       if (!directoryExists)
       {
@@ -47,18 +57,19 @@ namespace TextFileEditor
         searchOption = SearchOption.TopDirectoryOnly;
       }
 
-      allFiles = Directory.GetFiles(directoryPath, "*.txt", searchOption);
+      allFiles = Directory.GetFiles(directoryPath, _textFilePattern, searchOption);
 
-      foreach (string file in allFiles)
+      while (index < allFiles.Length)
       {
-        bool containsKeywords;
+        currentFile = allFiles[index];
+        fileHasKeywords = FileContainsKeywords(currentFile);
 
-        containsKeywords = FileContainsKeywords(file);
-
-        if (containsKeywords)
+        if (fileHasKeywords)
         {
-          foundFiles.Add(file);
+          foundFiles.Add(currentFile);
         }
+
+        index = index + _incrementValue;
       }
 
       return foundFiles;
@@ -70,22 +81,27 @@ namespace TextFileEditor
       {
         string fileContent;
         string contentLower;
+        int keywordIndex;
+        string currentKeyword;
+        string keywordLower;
+        bool keywordFound;
 
         fileContent = File.ReadAllText(filePath);
         contentLower = fileContent.ToLower();
+        keywordIndex = 0;
 
-        foreach (string keyword in _keywords)
+        while (keywordIndex < _keywords.Count)
         {
-          string keywordLower;
-          bool containsKeyword;
+          currentKeyword = _keywords[keywordIndex];
+          keywordLower = currentKeyword.ToLower();
+          keywordFound = contentLower.Contains(keywordLower);
 
-          keywordLower = keyword.ToLower();
-          containsKeyword = contentLower.Contains(keywordLower);
-
-          if (containsKeyword)
+          if (keywordFound)
           {
             return true;
           }
+
+          keywordIndex = keywordIndex + _incrementValue;
         }
       }
       catch
