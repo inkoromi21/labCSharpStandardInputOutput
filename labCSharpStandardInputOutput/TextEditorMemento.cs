@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace TextFileEditor
 {
@@ -18,30 +19,37 @@ namespace TextFileEditor
   public class TextEditor
   {
     private FileWithSerialization _currentFile;
-    private List<TextEditorMemento> _history;
-    private int _currentStateIndex;
-    private int _incrementValue;
-    private int _initialStateIndex;
+    private Stack<TextEditorMemento> _historyStack;
+    private Stack<TextEditorMemento> _redoStack;
 
     public TextEditor()
     {
       _currentFile = new FileWithSerialization();
-      _history = new List<TextEditorMemento>();
-      _currentStateIndex = -1;
-      _incrementValue = 1;
-      _initialStateIndex = -1;
+      _historyStack = new Stack<TextEditorMemento>();
+      _redoStack = new Stack<TextEditorMemento>();
     }
 
     public void OpenFile(string filePath)
     {
-      _currentFile = new FileWithSerialization(filePath);
-      SaveState();
+      bool fileExists;
+
+      fileExists = File.Exists(filePath);
+
+      if (fileExists)
+      {
+        _currentFile = new FileWithSerialization(filePath);
+        _historyStack.Clear();
+        _redoStack.Clear();
+        SaveState();
+      }
     }
 
     public void CreateNewFile(string filePath)
     {
       _currentFile = new FileWithSerialization(filePath);
       _currentFile.Content = string.Empty;
+      _historyStack.Clear();
+      _redoStack.Clear();
       SaveState();
     }
 
@@ -54,86 +62,60 @@ namespace TextFileEditor
       return content;
     }
 
-    public void SetContent(string newContent)
+    public void AddText(string newText)
     {
-      _currentFile.Content = newContent;
       SaveState();
-    }
-
-    public void SaveFile()
-    {
-      _currentFile.SaveToTextFile();
+      _currentFile.Content = _currentFile.Content + newText + Environment.NewLine;
+      _redoStack.Clear();
     }
 
     public void Undo()
     {
       bool canUndo;
-      int previousStateIndex;
-      string previousContent;
+      TextEditorMemento previousState;
 
-      canUndo = _currentStateIndex > 0;
+      canUndo = _historyStack.Count > 0;
 
       if (canUndo)
       {
-        previousStateIndex = _currentStateIndex - _incrementValue;
-        _currentStateIndex = previousStateIndex;
-        previousContent = _history[_currentStateIndex].Content;
-        _currentFile.Content = previousContent;
+        _redoStack.Push(new TextEditorMemento(_currentFile.Content));
+        previousState = _historyStack.Pop();
+        _currentFile.Content = previousState.Content;
       }
     }
 
     public void Redo()
     {
-      int lastIndex;
       bool canRedo;
-      int nextStateIndex;
-      string nextContent;
+      TextEditorMemento nextState;
 
-      lastIndex = _history.Count - _incrementValue;
-      canRedo = _currentStateIndex < lastIndex;
+      canRedo = _redoStack.Count > 0;
 
       if (canRedo)
       {
-        nextStateIndex = _currentStateIndex + _incrementValue;
-        _currentStateIndex = nextStateIndex;
-        nextContent = _history[_currentStateIndex].Content;
-        _currentFile.Content = nextContent;
+        _historyStack.Push(new TextEditorMemento(_currentFile.Content));
+        nextState = _redoStack.Pop();
+        _currentFile.Content = nextState.Content;
       }
     }
 
     private void SaveState()
     {
-      int lastIndex;
-      bool notAtEnd;
-      int startIndex;
-      int countToRemove;
-      TextEditorMemento newState;
-      int historyCount;
+      _historyStack.Push(new TextEditorMemento(_currentFile.Content));
+    }
 
-      lastIndex = _history.Count - _incrementValue;
-      notAtEnd = _currentStateIndex < lastIndex;
-
-      if (notAtEnd)
-      {
-        startIndex = _currentStateIndex + _incrementValue;
-        countToRemove = _history.Count - startIndex;
-        _history.RemoveRange(startIndex, countToRemove);
-      }
-
-      newState = new TextEditorMemento(_currentFile.Content);
-      _history.Add(newState);
-
-      historyCount = _history.Count;
-      _currentStateIndex = historyCount - _incrementValue;
+    public void SaveFile()
+    {
+      File.WriteAllText(_currentFile.FilePath, _currentFile.Content);
     }
 
     public List<string> GetHistoryInfo()
     {
       List<string> historyInfo;
-      int historyCount;
-      int index;
+      TextEditorMemento[] historyArray;
+      int stateIndex;
       string marker;
-      TextEditorMemento state;
+      TextEditorMemento currentState;
       DateTime stateTime;
       int contentLength;
       string info;
@@ -142,15 +124,14 @@ namespace TextFileEditor
       string charactersText;
 
       historyInfo = new List<string>();
-      historyCount = _history.Count;
-      index = 0;
+      historyArray = _historyStack.ToArray();
       currentMarkerPrefix = "-> ";
       otherMarkerPrefix = "   ";
       charactersText = " characters";
 
-      while (index < historyCount)
+      for (stateIndex = 0; stateIndex < historyArray.Length; ++stateIndex)
       {
-        if (index == _currentStateIndex)
+        if (stateIndex == 0)
         {
           marker = currentMarkerPrefix;
         }
@@ -159,14 +140,12 @@ namespace TextFileEditor
           marker = otherMarkerPrefix;
         }
 
-        state = _history[index];
-        stateTime = state.Timestamp;
-        contentLength = state.Content.Length;
+        currentState = historyArray[stateIndex];
+        stateTime = currentState.Timestamp;
+        contentLength = currentState.Content.Length;
 
-        info = marker + (index + _incrementValue) + ". " + stateTime + ": " + contentLength + charactersText;
+        info = marker + (stateIndex + 1) + ". " + stateTime + ": " + contentLength + charactersText;
         historyInfo.Add(info);
-
-        index = index + _incrementValue;
       }
 
       return historyInfo;

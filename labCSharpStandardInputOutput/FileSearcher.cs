@@ -6,42 +6,18 @@ namespace TextFileEditor
 {
   public class FileSearcher
   {
-    private List<string> _keywords;
-    private int _incrementValue;
-    private string _textFilePattern;
-
-    public FileSearcher()
-    {
-      _keywords = new List<string>();
-      _incrementValue = 1;
-      _textFilePattern = "*.txt";
-    }
-
-    public FileSearcher(List<string> keywords)
-    {
-      _keywords = keywords;
-      _incrementValue = 1;
-      _textFilePattern = "*.txt";
-    }
-
-    public void SetKeywords(List<string> keywords)
-    {
-      _keywords = keywords;
-    }
-
-    public List<string> SearchInDirectory(string directoryPath, bool searchSubdirectories)
+    public List<string> SearchInDirectory(string directoryPath, List<string> keywords, bool searchSubdirectories)
     {
       List<string> foundFiles;
       bool directoryExists;
       SearchOption searchOption;
       string[] allFiles;
-      int index;
+      int fileIndex;
       string currentFile;
       bool fileHasKeywords;
 
       foundFiles = new List<string>();
       directoryExists = Directory.Exists(directoryPath);
-      index = 0;
 
       if (!directoryExists)
       {
@@ -57,59 +33,56 @@ namespace TextFileEditor
         searchOption = SearchOption.TopDirectoryOnly;
       }
 
-      allFiles = Directory.GetFiles(directoryPath, _textFilePattern, searchOption);
+      allFiles = Directory.GetFiles(directoryPath, "*.txt", searchOption);
 
-      while (index < allFiles.Length)
+      for (fileIndex = 0; fileIndex < allFiles.Length; ++fileIndex)
       {
-        currentFile = allFiles[index];
-        fileHasKeywords = FileContainsKeywords(currentFile);
+        currentFile = allFiles[fileIndex];
+        fileHasKeywords = FileContainsKeywords(currentFile, keywords);
 
         if (fileHasKeywords)
         {
           foundFiles.Add(currentFile);
         }
-
-        index = index + _incrementValue;
       }
 
       return foundFiles;
     }
 
-    private bool FileContainsKeywords(string filePath)
+    private bool FileContainsKeywords(string filePath, List<string> keywords)
     {
+      bool result;
+      string fileContent;
+      string contentLower;
+      int keywordIndex;
+      string currentKeyword;
+      string keywordLower;
+
+      result = false;
+
       try
       {
-        string fileContent;
-        string contentLower;
-        int keywordIndex;
-        string currentKeyword;
-        string keywordLower;
-        bool keywordFound;
-
         fileContent = File.ReadAllText(filePath);
         contentLower = fileContent.ToLower();
-        keywordIndex = 0;
 
-        while (keywordIndex < _keywords.Count)
+        for (keywordIndex = 0; keywordIndex < keywords.Count; ++keywordIndex)
         {
-          currentKeyword = _keywords[keywordIndex];
+          currentKeyword = keywords[keywordIndex];
           keywordLower = currentKeyword.ToLower();
-          keywordFound = contentLower.Contains(keywordLower);
 
-          if (keywordFound)
+          if (contentLower.Contains(keywordLower))
           {
-            return true;
+            result = true;
+            break;
           }
-
-          keywordIndex = keywordIndex + _incrementValue;
         }
       }
       catch
       {
-        return false;
+        result = false;
       }
 
-      return false;
+      return result;
     }
   }
 }

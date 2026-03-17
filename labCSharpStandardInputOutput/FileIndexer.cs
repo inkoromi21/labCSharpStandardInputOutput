@@ -20,12 +20,14 @@ namespace TextFileEditor
       bool directoryExists;
       SearchOption searchOption;
       string[] allFiles;
+      int fileIndex;
+      string currentFile;
       string fileContent;
       string contentLower;
+      int keywordIndex;
+      string currentKeyword;
       string keywordLower;
       bool containsKeyword;
-      List<string> filesForKeyword;
-      bool fileAlreadyAdded;
 
       _directoryPath = directoryPath;
       _index.Clear();
@@ -48,32 +50,30 @@ namespace TextFileEditor
 
       allFiles = Directory.GetFiles(directoryPath, "*.txt", searchOption);
 
-      foreach (string keyword in keywords)
+      for (keywordIndex = 0; keywordIndex < keywords.Count; ++keywordIndex)
       {
-        _index[keyword] = new List<string>();
+        currentKeyword = keywords[keywordIndex];
+        _index[currentKeyword] = new List<string>();
       }
 
-      foreach (string file in allFiles)
+      for (fileIndex = 0; fileIndex < allFiles.Length; ++fileIndex)
       {
+        currentFile = allFiles[fileIndex];
+
         try
         {
-          fileContent = File.ReadAllText(file);
+          fileContent = File.ReadAllText(currentFile);
           contentLower = fileContent.ToLower();
 
-          foreach (string keyword in keywords)
+          for (keywordIndex = 0; keywordIndex < keywords.Count; ++keywordIndex)
           {
-            keywordLower = keyword.ToLower();
+            currentKeyword = keywords[keywordIndex];
+            keywordLower = currentKeyword.ToLower();
             containsKeyword = contentLower.Contains(keywordLower);
 
             if (containsKeyword)
             {
-              filesForKeyword = _index[keyword];
-              fileAlreadyAdded = filesForKeyword.Contains(file);
-
-              if (!fileAlreadyAdded)
-              {
-                filesForKeyword.Add(file);
-              }
+              _index[currentKeyword].Add(currentFile);
             }
           }
         }
@@ -99,36 +99,33 @@ namespace TextFileEditor
       }
 
       emptyList = new List<string>();
-      return emptyList;
-    }
 
-    public Dictionary<string, List<string>> GetAllIndexData()
-    {
-      return _index;
+      return emptyList;
     }
 
     public void PrintIndex()
     {
-      string keyword;
+      string currentKeyword;
       List<string> files;
+      int fileIndex;
       int filesCount;
-      string file;
+      string currentFile;
 
       Console.WriteLine("\n=== FILE INDEX ===");
 
       foreach (KeyValuePair<string, List<string>> pair in _index)
       {
-        keyword = pair.Key;
+        currentKeyword = pair.Key;
         files = pair.Value;
         filesCount = files.Count;
 
-        Console.WriteLine("Keyword: '" + keyword + "'");
+        Console.WriteLine("Keyword: '" + currentKeyword + "'");
         Console.WriteLine("Files found: " + filesCount);
 
-        foreach (string currentFile in files)
+        for (fileIndex = 0; fileIndex < files.Count; ++fileIndex)
         {
-          file = currentFile;
-          Console.WriteLine("  - " + file);
+          currentFile = files[fileIndex];
+          Console.WriteLine("  - " + currentFile);
         }
 
         Console.WriteLine();
