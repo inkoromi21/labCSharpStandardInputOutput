@@ -9,7 +9,6 @@ namespace TextFileEditor
     static void Main(string[] args)
     {
       bool isRunning;
-
       string userChoice;
       string menuChoiceEditor;
       string menuChoiceSearch;

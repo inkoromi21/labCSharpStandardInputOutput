@@ -20,6 +20,12 @@ namespace TextFileEditor
       bool directoryExists;
       SearchOption searchOption;
       string[] allFiles;
+      string fileContent;
+      string contentLower;
+      string keywordLower;
+      bool containsKeyword;
+      List<string> filesForKeyword;
+      bool fileAlreadyAdded;
 
       _directoryPath = directoryPath;
       _index.Clear();
@@ -51,25 +57,16 @@ namespace TextFileEditor
       {
         try
         {
-          string fileContent;
-          string contentLower;
-
           fileContent = File.ReadAllText(file);
           contentLower = fileContent.ToLower();
 
           foreach (string keyword in keywords)
           {
-            string keywordLower;
-            bool containsKeyword;
-
             keywordLower = keyword.ToLower();
             containsKeyword = contentLower.Contains(keywordLower);
 
             if (containsKeyword)
             {
-              List<string> filesForKeyword;
-              bool fileAlreadyAdded;
-
               filesForKeyword = _index[keyword];
               fileAlreadyAdded = filesForKeyword.Contains(file);
 
@@ -90,22 +87,18 @@ namespace TextFileEditor
     public List<string> FindFilesByKeyword(string keyword)
     {
       bool keywordExists;
+      List<string> foundFiles;
+      List<string> emptyList;
 
       keywordExists = _index.ContainsKey(keyword);
 
       if (keywordExists)
       {
-        List<string> foundFiles;
-
         foundFiles = _index[keyword];
-
         return foundFiles;
       }
 
-      List<string> emptyList;
-
       emptyList = new List<string>();
-
       return emptyList;
     }
 
@@ -116,14 +109,15 @@ namespace TextFileEditor
 
     public void PrintIndex()
     {
+      string keyword;
+      List<string> files;
+      int filesCount;
+      string file;
+
       Console.WriteLine("\n=== FILE INDEX ===");
 
       foreach (var pair in _index)
       {
-        string keyword;
-        List<string> files;
-        int filesCount;
-
         keyword = pair.Key;
         files = pair.Value;
         filesCount = files.Count;
@@ -131,8 +125,9 @@ namespace TextFileEditor
         Console.WriteLine("Keyword: '" + keyword + "'");
         Console.WriteLine("Files found: " + filesCount);
 
-        foreach (string file in files)
+        foreach (string currentFile in files)
         {
+          file = currentFile;
           Console.WriteLine("  - " + file);
         }
 
