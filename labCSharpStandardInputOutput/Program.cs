@@ -314,7 +314,6 @@ namespace TextFileEditor
 
       foreach (string keyword in keywordsArray)
       {
-
         trimmedKeyword = keyword.Trim();
         keywords.Add(trimmedKeyword);
       }

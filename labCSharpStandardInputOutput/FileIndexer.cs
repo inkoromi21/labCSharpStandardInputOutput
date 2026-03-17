@@ -116,7 +116,7 @@ namespace TextFileEditor
 
       Console.WriteLine("\n=== FILE INDEX ===");
 
-      foreach (var pair in _index)
+      foreach (KeyValuePair<string, List<string>> pair in _index)
       {
         keyword = pair.Key;
         files = pair.Value;
