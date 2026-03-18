@@ -118,6 +118,7 @@ namespace TextFileEditor
       TextEditorMemento currentState;
       DateTime stateTime;
       int contentLength;
+      int offsetNumber;
       string info;
       string currentMarkerPrefix;
       string otherMarkerPrefix;
@@ -128,6 +129,7 @@ namespace TextFileEditor
       currentMarkerPrefix = "-> ";
       otherMarkerPrefix = "   ";
       charactersText = " characters";
+      offsetNumber = 1;
 
       for (stateIndex = 0; stateIndex < historyArray.Length; ++stateIndex)
       {
@@ -144,7 +146,7 @@ namespace TextFileEditor
         stateTime = currentState.Timestamp;
         contentLength = currentState.Content.Length;
 
-        info = marker + (stateIndex + 1) + ". " + stateTime + ": " + contentLength + charactersText;
+        info = marker + (stateIndex + offsetNumber) + ". " + stateTime + ": " + contentLength + charactersText;
         historyInfo.Add(info);
       }
 
