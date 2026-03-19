@@ -58,6 +58,7 @@ namespace TextFileEditor
       bool isEditing;
       string command;
       string newText;
+      List<string> historyInfo;
 
       editor = new TextEditor();
 
@@ -140,8 +141,6 @@ namespace TextFileEditor
         }
         else if (command == "5")
         {
-          List<string> historyInfo;
-
           Console.WriteLine("\nHistory of changes:");
           historyInfo = editor.GetHistoryInfo();
 
