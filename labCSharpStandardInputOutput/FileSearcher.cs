@@ -77,6 +77,7 @@ namespace TextFileEditor
           }
         }
       }
+
       catch
       {
         result = false;
